@@ -2,7 +2,6 @@ import {LinkedList} from "./linkedList";
 import {Card} from "./card";
 import {Player} from "./player";
 import {Deck} from "./deck";
-import {Tab} from "@mantine/core/lib/Tabs/Tab/Tab";
 
 enum GameStage {
     Preparing,
@@ -70,6 +69,10 @@ export class Table {
         }
     }
 
+    isMovedRound() {
+        return this?.currentPlayerPosition?.next === null;
+    }
+
     resetPlayerOrder() {
         this.currentPlayerPosition = this.playersAtTheTable.head;
     }
@@ -88,20 +91,18 @@ export class Table {
     startGame() {
         this.currentPlayerPosition = this.playersAtTheTable.getNext()
 
-        if (this.playersAtTheTable.size() < 2) {
+        if (this.playersAtTheTable.size() < this.minimumPlayer) {
             // Todo: add button and event's for button
             console.log("WARNING: There is not enough player")
             return
         }
 
-        console.log('Current game stage:', this.currentGameStage);
-        console.log('Players at the table:', this.playersAtTheTable.toArray().map(player => player.hand.toString()));
-        console.log('Cards on the table:', this.cardsOnTable);
+        // console.log('Current game stage:', this.currentGameStage);
+        // console.log('Players at the table:', this.playersAtTheTable.toArray().map(player => player.hand.toString()));
+        // console.log('Cards on the table:', this.cardsOnTable);
 
         this.setDealerPosition();
         this.setBlinds();
-
-        this.gameStageSwitch(this.nextGameStage());
     }
 
     nextGameStage(): GameStage {

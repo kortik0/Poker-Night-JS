@@ -1,9 +1,10 @@
-'use client'
+"use client"
 
 import "../styles/globals.css"
 import {Table} from "../components/table";
 import {Button} from "@mantine/core";
 import {useEffect, useState} from "react";
+import {useTimeout} from "@mantine/hooks";
 
 
 //This is just a scrap of ideas which would be decomposed. But for now it is what it is.
@@ -21,14 +22,33 @@ export default function Main() {
     });
 
     useEffect(() => {
+        return () => {
+            setTimeout(() => {
+                console.log("Line 26")
+                table.gameStageSwitch(table.nextGameStage());
+                updateTable();
+            }, 1000)
+
+        }
+    }, [])
+
+    useEffect(() => {
         // Update the table state to trigger a re-render
-        setNewTable((prevTable) => prevTable.getCopyTable());
+        setNewTable((prevState) => prevState.getCopyTable());
     }, [table.currentPlayerPosition]);
 
     const clickHandler = (action) => {
         // Perform the action based on the button clicked (bet, raise, call, check, fold)
         const player = table.currentPlayerPosition;
         player[action]();
+
+        // If we moved around we should switch gameStage
+        if (table.isMovedRound()) {
+            table.resetPlayerOrder();
+            table.gameStageSwitch(table.nextGameStage());
+            updateTable();
+            return;
+        }
 
         // Move the turn to the next player
         table.nextPlayer();
@@ -46,7 +66,10 @@ export default function Main() {
         <>
             <div>
                 <p>Current player turn is: {table.currentPlayerPosition?.name}</p>
+                <p>Current player turn
+                    is: {table.currentPlayerPosition?.hand[0]?.toString()} / {table.currentPlayerPosition?.hand[1]?.toString()}</p>
                 <p>Current game stage is: {table.currentGameStage}</p>
+                <p>Current table is: {table?.cardsOnTable.toString()}</p>
                 {/*Bet and Raise should be calculated*/}
                 <Button onClick={() => clickHandler("setBet")}>Bet</Button>
                 <Button onClick={() => clickHandler("raise")}>Raise</Button>
