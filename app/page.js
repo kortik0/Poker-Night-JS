@@ -10,6 +10,8 @@ export const metadata = {
     title: "Poker Night",
 }
 
+//TODO: Make components
+//TODO: Decompose it (yeet)
 export default function Main() {
     const [needTimeout, setNeedTimeout] = useState(false);
 
