@@ -3,7 +3,7 @@ import {Player} from "./player";
 //LinkedList is a set of players and their order
 export class LinkedList {
     head: Player;
-    private tail: Player;
+    tail: Player;
     private length: number;
     private currentPlayerIndex: number = 0;
     constructor() {

@@ -1,11 +1,9 @@
 "use client"
 
 import "../styles/globals.css"
-import {Table} from "../components/table";
-import {Button} from "@mantine/core";
+import {GameStage, Table} from "../components/table";
+import {Button, Text, TextInput} from "@mantine/core";
 import {useEffect, useState} from "react";
-import {useTimeout} from "@mantine/hooks";
-
 
 //This is just a scrap of ideas which would be decomposed. But for now it is what it is.
 export const metadata = {
@@ -13,6 +11,10 @@ export const metadata = {
 }
 
 export default function Main() {
+    const [needTimeout, setNeedTimeout] = useState(false);
+
+    const [bet, setBet] = useState("")
+
     const [table, setNewTable] = useState(() => {
         const newTable = new Table();
         newTable.registerNewPlayer('Player 1');
@@ -22,15 +24,19 @@ export default function Main() {
     });
 
     useEffect(() => {
-        return () => {
-            setTimeout(() => {
-                console.log("Line 26")
-                table.gameStageSwitch(table.nextGameStage());
-                updateTable();
-            }, 1000)
-
+        if (needTimeout === false || table.currentGameStage !== GameStage.Preparing) {
         }
-    }, [])
+        const timeoutHandler = () => {
+            console.log("Line 27")
+            table.gameStageSwitch(table.nextGameStage());
+            updateTable();
+        };
+
+        const timeout = setTimeout(timeoutHandler, 1000);
+        setNeedTimeout(false);
+
+        return () => clearTimeout(timeout);
+    }, [needTimeout])
 
     useEffect(() => {
         // Update the table state to trigger a re-render
@@ -40,7 +46,16 @@ export default function Main() {
     const clickHandler = (action) => {
         // Perform the action based on the button clicked (bet, raise, call, check, fold)
         const player = table.currentPlayerPosition;
-        player[action]();
+
+        const losedChips = player[action](bet);
+        table.pot += +losedChips;
+
+        if (table.isMovedRound() && table.currentGameStage === 6) {
+            table.restartGame();
+            updateTable();
+            setNeedTimeout(true);
+            return;
+        }
 
         // If we moved around we should switch gameStage
         if (table.isMovedRound()) {
@@ -65,17 +80,26 @@ export default function Main() {
     return (
         <>
             <div>
+                <p>Current pot is: {table.pot}</p>
                 <p>Current player turn is: {table.currentPlayerPosition?.name}</p>
+                {/* How did I fix it?*/}
                 <p>Current player turn
                     is: {table.currentPlayerPosition?.hand[0]?.toString()} / {table.currentPlayerPosition?.hand[1]?.toString()}</p>
                 <p>Current game stage is: {table.currentGameStage}</p>
                 <p>Current table is: {table?.cardsOnTable.toString()}</p>
                 {/*Bet and Raise should be calculated*/}
-                <Button onClick={() => clickHandler("setBet")}>Bet</Button>
-                <Button onClick={() => clickHandler("raise")}>Raise</Button>
-                <Button onClick={() => clickHandler("call")}>Call</Button>
-                <Button onClick={() => clickHandler("check")}>Check</Button>
-                <Button onClick={() => clickHandler("fold")}>Fold</Button>
+                {table.currentGameStage !== GameStage.Preparing &&
+                    <>
+                        <Button onClick={() => clickHandler("setBet")}>Bet</Button>
+                        <Button onClick={() => clickHandler("raise")}>Raise</Button>
+                        <TextInput value={bet} onChange={(e) => {
+                            setBet(e.target.value)
+                        }}/>
+                        <Button onClick={() => clickHandler("call")}>Call</Button>
+                        <Button onClick={() => clickHandler("check")}>Check</Button>
+                        <Button onClick={() => clickHandler("fold")}>Fold</Button>
+                    </>
+                }
             </div>
         </>
     )

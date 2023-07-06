@@ -3,7 +3,7 @@ import {Card} from "./card";
 import {Player} from "./player";
 import {Deck} from "./deck";
 
-enum GameStage {
+export enum GameStage {
     Preparing,
     Preflop,
     Flop,
@@ -12,7 +12,6 @@ enum GameStage {
     Showdown,
     Ending
 }
-
 
 export class Table {
     private sitsCount = 10;
@@ -52,6 +51,19 @@ export class Table {
         }
     }
 
+    restartGame() {
+        // Reset the game state and prepare for a new game
+        this.currentGameStage = GameStage.Preparing;
+        this.isInGame = false;
+        this.cardsOnTable = [];
+        this.dealerPosition = -1;
+        this._pot = 0;
+
+        if (this.playersAtTheTable.size() < this.minimumPlayer) return;
+
+        this.startGame();
+    }
+
     private sit(name: String) {
         this.playersAtTheTable.addPlayer(name);
     }
@@ -73,23 +85,33 @@ export class Table {
         return this?.currentPlayerPosition?.next === null;
     }
 
+    // Doesn't move to next, but tail link to head
     resetPlayerOrder() {
         this.currentPlayerPosition = this.playersAtTheTable.head;
     }
 
     getCopyTable() {
+        //TODO: IT is what it is
         const newTable = new Table()
-        newTable.currentPlayerPosition = this.currentPlayerPosition;
+        newTable.minimumPlayer = this.minimumPlayer;
+        newTable.deck = this.deck;
+        newTable.sitsCount = this.sitsCount;
+        newTable.currentGameStage = this.currentGameStage;
+        newTable.isInGame = this.isInGame;
         newTable.nonTablePlayers = this.nonTablePlayers;
         newTable.playersAtTheTable = this.playersAtTheTable;
         newTable.cardsOnTable = this.cardsOnTable;
-        newTable.currentGameStage = this.currentGameStage;
+        newTable.currentPlayerPosition = this.currentPlayerPosition;
+        newTable.bigBlind = this.bigBlind;
+        newTable.smallBlind = this.smallBlind;
+        newTable.dealerPosition = this.dealerPosition;
+        newTable._pot = this._pot;
 
         return newTable;
     }
 
     startGame() {
-        this.currentPlayerPosition = this.playersAtTheTable.getNext()
+        this.currentPlayerPosition = this.playersAtTheTable.head;
 
         if (this.playersAtTheTable.size() < this.minimumPlayer) {
             // Todo: add button and event's for button
@@ -210,5 +232,14 @@ export class Table {
         console.log(`Small Blind: ${smallBlindPlayer.name}, Bet: ${this.smallBlind}`);
         console.log(`Big Blind: ${bigBlindPlayer.name}, Bet: ${this.bigBlind}`);
         console.log(`Current pot is: ${this._pot}`)
+    }
+
+
+    get pot(): number {
+        return this._pot;
+    }
+
+    set pot(value: number) {
+        this._pot = value;
     }
 }
