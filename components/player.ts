@@ -4,15 +4,28 @@ export class Player {
     chips = 1000;
     name: string;
     private _hand: Card[] = []
+    private _isFolded = false;
+
+    //Let's be so
+    currentBet = 0;
+
     next: Player;
 
     private _isBigBlind = false;
     private _isSmallBlind = false;
 
     constructor(name) {
-        //Next Player class
         this.name = name;
+        //Next Player class
         this.next = null;
+    }
+
+    get isFolded(): boolean {
+        return this._isFolded;
+    }
+
+    set isFolded(value: boolean) {
+        this._isFolded = value;
     }
 
     get hand(): Card[] {
@@ -40,31 +53,42 @@ export class Player {
     }
 
 //Movements
-    setBet(bet: number = (this.chips * 0.20)): number {
-        this.chips -= bet;
+    setBet(amount: number = (this.chips * 0.20)): number {
+        const bet = Math.min(this.chips, amount);
 
+        this.currentBet = bet;
+        this.chips -= bet;
         return bet;
     }
 
     /*Call and Raise AI generated and should be tested*/
-    call(pot: number = (this.chips * 0.20)): number {
-        const bet = Math.min(this.chips, pot);
+    call(tableHighestStake: number): number {
+        const bet = Math.min(this.chips, tableHighestStake);
+
+        this.currentBet = bet;
         this.chips -= bet;
         return bet;
     }
 
     raise(amount: number = (this.chips * 0.20)): number {
         const bet = Math.min(this.chips, amount);
+
+        this.currentBet = bet;
         this.chips -= bet;
         return bet;
     }
 
     check() {
-
+        // this.currentBet = 0;
+        return 0;
     }
 
     fold() {
-        console.log("This is folded somehow")
+        this.currentBet = 0;
+        this.isFolded = true;
+        this.hand = [];
+
+        return 0;
     }
 
     giveMoneyToCasino() {

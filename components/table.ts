@@ -17,8 +17,6 @@ export class Table {
     private sitsCount = 10;
     private minimumPlayer = 2;
 
-    private _pot = 0;
-
     private deck: Deck = new Deck();
 
     /*private*/
@@ -35,6 +33,9 @@ export class Table {
     //Now constant, but maybe will automatic
     bigBlind = 100;
     smallBlind = 50;
+
+    private _pot = 0;
+    currentHighestStake = this.bigBlind;
 
     private dealerPosition: number = -1;
 
@@ -91,8 +92,11 @@ export class Table {
     }
 
     getCopyTable() {
-        //TODO: IT is what it is
+        // TODO: IT is what it is
+        // This is already too much
+        // I should find another way to copy it
         const newTable = new Table()
+
         newTable.minimumPlayer = this.minimumPlayer;
         newTable.deck = this.deck;
         newTable.sitsCount = this.sitsCount;
@@ -106,11 +110,13 @@ export class Table {
         newTable.smallBlind = this.smallBlind;
         newTable.dealerPosition = this.dealerPosition;
         newTable._pot = this._pot;
+        newTable.currentHighestStake = this.currentHighestStake;
 
         return newTable;
     }
 
     startGame() {
+        // TODO: Game should start from player next after big blind one
         this.currentPlayerPosition = this.playersAtTheTable.head;
 
         if (this.playersAtTheTable.size() < this.minimumPlayer) {
@@ -119,9 +125,7 @@ export class Table {
             return
         }
 
-        // console.log('Current game stage:', this.currentGameStage);
-        // console.log('Players at the table:', this.playersAtTheTable.toArray().map(player => player.hand.toString()));
-        // console.log('Cards on the table:', this.cardsOnTable);
+        console.log(this.playersAtTheTable.toArray())
 
         this.setDealerPosition();
         this.setBlinds();
@@ -166,10 +170,6 @@ export class Table {
             default:
                 console.log('Invalid game state');
         }
-
-        console.log('Current game stage:', this.currentGameStage);
-        console.log('Players at the table:', this.playersAtTheTable.toArray().map(player => player.hand.toString()));
-        console.log('Cards on the table:', this.cardsOnTable);
     }
 
     dealPreflop() {
@@ -229,8 +229,8 @@ export class Table {
 
         this._pot = this.smallBlind + this.bigBlind;
 
-        console.log(`Small Blind: ${smallBlindPlayer.name}, Bet: ${this.smallBlind}`);
-        console.log(`Big Blind: ${bigBlindPlayer.name}, Bet: ${this.bigBlind}`);
+        console.log(`Small Blind: ${smallBlindPlayer.name}, Bet: ${smallBlindPlayer.currentBet}`);
+        console.log(`Big Blind: ${bigBlindPlayer.name}, Bet: ${bigBlindPlayer.currentBet}`);
         console.log(`Current pot is: ${this._pot}`)
     }
 
