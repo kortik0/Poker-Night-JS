@@ -283,6 +283,8 @@ export class Table {
                 break;
         }
 
+        console.log(`IS MOVED: ${this.isMovedRound()}`)
+        console.log(`IS ISSTAKESEQUAL: ${this.isStakesEqual()}`)
         if (this.isMovedRound() && this.isStakesEqual() && this.currentGameStage !== GameStage.Showdown) {
             this.gameStageSwitch(this.nextGameStage());
         }

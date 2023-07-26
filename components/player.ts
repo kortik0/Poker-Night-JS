@@ -31,8 +31,8 @@ export class Player {
 
     /*Call and Raise AI generated and should be tested*/
     call(tableHighestStake: number): number {
-        const chipsToCall = tableHighestStake - this.currentBet;
-        const chipsToLose = Math.min(this.chips, chipsToCall);
+        // const chipsToCall = tableHighestStake - this.currentBet;
+        const chipsToLose = Math.min(this.chips, tableHighestStake);
 
         this.chips -= chipsToLose;
         this.currentBet += chipsToLose;
