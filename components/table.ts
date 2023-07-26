@@ -78,8 +78,20 @@ export class Table {
         if (this.currentPlayerPosition && this.currentPlayerPosition.next !== null) {
             this.currentPlayerPosition = this.currentPlayerPosition.next;
         } else {
+            if (this.isMovedRound() && this.isStakesEqual()) {
+                this.gameStageSwitch(this.nextGameStage());
+            }
+
             this.resetPlayerOrder();
         }
+    }
+
+    isStakesEqual() {
+        return this.currentHighestStake && this.playersAtTheTable.toArray().every((player: Player) => {
+            console.log(`${player.name} - ${player.currentBet}`)
+            console.log(`Highest stake - ${this.currentHighestStake}`)
+            return player.currentBet === this.currentHighestStake || player.isFolded === true;
+        })
     }
 
     isMovedRound() {
@@ -228,10 +240,54 @@ export class Table {
         bigBlindPlayer.setBet(this.bigBlind);
 
         this._pot = this.smallBlind + this.bigBlind;
+        this.currentHighestStake = this.pot - this.smallBlind;
 
         console.log(`Small Blind: ${smallBlindPlayer.name}, Bet: ${smallBlindPlayer.currentBet}`);
         console.log(`Big Blind: ${bigBlindPlayer.name}, Bet: ${bigBlindPlayer.currentBet}`);
         console.log(`Current pot is: ${this._pot}`)
+    }
+
+    playerAction(actionType: string, amount: number) {
+        const currentPlayer = this.currentPlayerPosition;
+
+        switch (actionType) {
+            case "bet":
+                currentPlayer.setBet(amount);
+                this.pot += amount;
+                this.currentHighestStake = amount;
+                break;
+
+            case "raise":
+                // const totalBetAmount = amount + this.currentHighestStake;
+                currentPlayer.raise(amount);
+                this.pot += amount;
+                this.currentHighestStake = amount;
+                break;
+
+            case "fold":
+                currentPlayer.fold();
+                break;
+
+            case "check":
+                currentPlayer.check();
+                break;
+
+            case "call":
+                const amountToCall = this.currentHighestStake - currentPlayer.currentBet;
+                currentPlayer.call(amountToCall);
+                this.pot += amountToCall;
+                break;
+
+            default:
+                console.log("Invalid action");
+                break;
+        }
+
+        if (this.isMovedRound() && this.isStakesEqual() && this.currentGameStage !== GameStage.Showdown) {
+            this.gameStageSwitch(this.nextGameStage());
+        }
+
+        this.nextPlayer();
     }
 
 

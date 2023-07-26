@@ -20,6 +20,51 @@ export class Player {
         this.next = null;
     }
 
+    //Movements
+    setBet(amount: number = (this.chips * 0.20)): number {
+        const bet = Math.min(this.chips, amount);
+
+        this.currentBet = bet;
+        this.chips -= bet;
+        return bet;
+    }
+
+    /*Call and Raise AI generated and should be tested*/
+    call(tableHighestStake: number): number {
+        const chipsToCall = tableHighestStake - this.currentBet;
+        const chipsToLose = Math.min(this.chips, chipsToCall);
+
+        this.chips -= chipsToLose;
+        this.currentBet += chipsToLose;
+
+        return chipsToLose;
+    }
+
+    raise(amount: number = (this.chips * 0.20)): number {
+        const bet = Math.min(this.chips, amount);
+
+        this.currentBet += bet;
+        this.chips -= bet;
+        return bet;
+    }
+
+    check() {
+        // this.currentBet = 0;
+        return 0;
+    }
+
+    fold() {
+        this.currentBet = 0;
+        this.isFolded = true;
+        this.hand = [];
+
+        return 0;
+    }
+
+    giveMoneyToCasino() {
+        this.chips -= this.chips * Math.random();
+    }
+
     get isFolded(): boolean {
         return this._isFolded;
     }
@@ -52,46 +97,4 @@ export class Player {
         this._isSmallBlind = value;
     }
 
-//Movements
-    setBet(amount: number = (this.chips * 0.20)): number {
-        const bet = Math.min(this.chips, amount);
-
-        this.currentBet = bet;
-        this.chips -= bet;
-        return bet;
-    }
-
-    /*Call and Raise AI generated and should be tested*/
-    call(tableHighestStake: number): number {
-        const bet = Math.min(this.chips, tableHighestStake);
-
-        this.currentBet = bet;
-        this.chips -= bet;
-        return bet;
-    }
-
-    raise(amount: number = (this.chips * 0.20)): number {
-        const bet = Math.min(this.chips, amount);
-
-        this.currentBet = bet;
-        this.chips -= bet;
-        return bet;
-    }
-
-    check() {
-        // this.currentBet = 0;
-        return 0;
-    }
-
-    fold() {
-        this.currentBet = 0;
-        this.isFolded = true;
-        this.hand = [];
-
-        return 0;
-    }
-
-    giveMoneyToCasino() {
-        this.chips -= this.chips * Math.random();
-    }
 }
