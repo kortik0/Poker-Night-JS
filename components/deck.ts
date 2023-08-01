@@ -1,4 +1,6 @@
 import {Card} from "./card";
+import {Rank} from "./enums/Rank";
+import {Suit} from "./enums/Suit";
 
 export class Deck {
     private readonly cards: any[];
@@ -9,8 +11,9 @@ export class Deck {
     }
 
     createDeck() {
-        const ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
-        const suits = ['♠', '♦', '♥', '♣'];
+        // Object.values and etc is pogable after sharp Enum
+        const ranks = Object.values(Rank);
+        const suits = Object.values(Suit);
 
         for (const suit of suits) {
             for (const rank of ranks) {

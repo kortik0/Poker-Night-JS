@@ -1,12 +1,16 @@
+import {Rank} from "./enums/Rank";
+import {Suit} from "./enums/Suit";
+
 export class Card {
-    private rank: any;
-    private suit: any;
-    constructor(rank, suit) {
+    private rank: Rank;
+    private suit: Suit;
+
+    constructor(rank: Rank, suit: Suit) {
         this.rank = rank;
         this.suit = suit;
     }
 
-    toString() {
+    toString(): string {
         return `${this.rank}${this.suit}`;
     }
 }
