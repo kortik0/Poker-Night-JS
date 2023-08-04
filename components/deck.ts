@@ -1,9 +1,9 @@
-import {Card} from "./card";
-import {Rank} from "./enums/Rank";
-import {Suit} from "./enums/Suit";
+import { Card } from "./card";
+import { Rank } from "./enums/Rank";
+import { Suit } from "./enums/Suit";
 
 export class Deck {
-    private readonly cards: any[];
+    private readonly cards: Card[];
     constructor() {
         this.cards = [];
         this.createDeck();
@@ -11,7 +11,6 @@ export class Deck {
     }
 
     createDeck() {
-        // Object.values and etc is pogable after sharp Enum
         const ranks = Object.values(Rank);
         const suits = Object.values(Suit);
 
@@ -30,7 +29,7 @@ export class Deck {
     }
 
     getHand(): Card[] {
-        const hand = []
+        const hand: Card[] = [];
         for (let i = 0; i < 2; i++) {
             hand.push(this.draw());
         }
@@ -39,12 +38,12 @@ export class Deck {
     }
 
     getFlop(): Card[] {
-        const hand = []
+        const flop: Card[] = [];
         for (let i = 0; i < 3; i++) {
-            hand.push(this.draw());
+            flop.push(this.draw());
         }
 
-        return hand;
+        return flop;
     }
 
     draw(): Card {
@@ -52,7 +51,11 @@ export class Deck {
             throw new Error('The deck is empty');
         }
 
-        return this.cards.pop();
+        return this.cards.pop()!;
+    }
+
+    getDeckLength() {
+        return this.cards.length;
     }
 
     toString() {

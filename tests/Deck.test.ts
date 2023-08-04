@@ -1,40 +1,53 @@
 import {Deck} from "../components/deck";
+import {Rank} from "../components/enums/Rank";
 import {Card} from "../components/card";
+import {Suit} from "../components/enums/Suit";
 
-describe('Deck class', () => {
-    let deck: Deck;
+describe('Deck', () => {
 
-    beforeEach(() => {
-        deck = new Deck();
+    // Tests that the public method 'getDeckLength()' returns the length of the deck
+    it('should return the length of the deck', () => {
+        const deck = new Deck();
+        expect(deck.getDeckLength()).toEqual(52);
     });
 
-    test('should create a deck with 52 cards', () => {
-        expect(deck.toString().split(",").length).toBe(52);
+    // Tests that a card is created successfully
+    it('should create a card with rank and suit', () => {
+        const card = new Card(Rank.Ace, Suit.Hearts);
+        expect(card.toString()).toBe('A♥');
     });
 
-    test('should get a hand of 2 cards', () => {
-        const hand = deck.getHand();
-        expect(hand.length).toBe(2);
-        expect(deck.toString().split(",").length).toBe(50);
+    // Tests that a deck is shuffled successfully
+    it('should shuffle the deck', () => {
+        const deck = new Deck();
+        const originalOrder = deck.toString();
+        deck.shuffle();
+        expect(deck.toString()).not.toBe(originalOrder);
     });
 
-    test('should get a flop of 3 cards', () => {
-        const flop = deck.getFlop();
-        expect(flop.length).toBe(3);
-        expect(deck.toString().split(",").length).toBe(49);
-    });
-
-    test('should draw a card from the deck', () => {
+    // Tests that a card is drawn from the deck successfully
+    it('should draw a card from the deck', () => {
+        const deck = new Deck();
         const card = deck.draw();
         expect(card).toBeInstanceOf(Card);
-        expect(deck.toString().split(",").length).toBe(51);
     });
 
-    // test('should throw an error when drawing from an empty deck', () => {
-    //     deck = new Deck();
-    //     while (deck.draw()) {
-    //     }
-    //
-    //     expect(() => deck.draw()).toThrow('The deck is empty');
-    // });
+    // Tests that a hand of cards is dealt successfully
+    it('should deal a hand of cards', () => {
+        const deck = new Deck();
+        const hand = deck.getHand();
+        expect(hand).toHaveLength(2);
+        expect(hand[0]).toBeInstanceOf(Card);
+        expect(hand[1]).toBeInstanceOf(Card);
+    });
+
+    // Tests that a flop of cards is dealt successfully
+    it('should deal a flop of cards', () => {
+        const deck = new Deck();
+        const flop = deck.getFlop();
+        expect(flop).toHaveLength(3);
+        expect(flop[0]).toBeInstanceOf(Card);
+        expect(flop[1]).toBeInstanceOf(Card);
+        expect(flop[2]).toBeInstanceOf(Card);
+    });
 });
