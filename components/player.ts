@@ -73,6 +73,10 @@ export class Player {
         this._isFolded = value;
     }
 
+    getEvaluatedHand(): string[] {
+        return this._hand.map(card => card.toEvaluatorString())
+    }
+
     get hand(): Card[] {
         return this._hand;
     }

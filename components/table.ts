@@ -157,6 +157,7 @@ export class Table {
 
     gameStageSwitch(gameStage: GameStage) {
         this.currentGameStage = gameStage;
+        this.resetPlayerOrder();
 
         switch (this.currentGameStage) {
             case GameStage.Preparing:
@@ -210,6 +211,8 @@ export class Table {
     }
 
     endGame() {
+        // TODO: Check this. But I think it's okay
+        this.restartGame();
         // Clean up and prepare for the next game or exit the application
         // TODO: Above
     }
@@ -287,9 +290,14 @@ export class Table {
         console.log(`IS ISSTAKESEQUAL: ${this.isStakesEqual()}`)
         if (this.isMovedRound() && this.isStakesEqual() && this.currentGameStage !== GameStage.Showdown) {
             this.gameStageSwitch(this.nextGameStage());
+            return;
         }
 
         this.nextPlayer();
+    }
+
+    getEvaluatedCards() {
+        return this.cardsOnTable.map(card => card.toEvaluatorString());
     }
 
 

@@ -1,9 +1,10 @@
 import {Rank} from "./enums/Rank";
-import {Suit} from "./enums/Suit";
+import {Suit, SuitEvaluator} from "./enums/Suit";
 
 export class Card {
     private readonly rank: Rank;
     private readonly suit: Suit;
+    private readonly evaluatorSuit: SuitEvaluator;
 
     constructor(rank: Rank, suit: Suit) {
         if(!rank || !suit) {
@@ -17,8 +18,20 @@ export class Card {
             throw new Error("Suit should be enumerated!")
         }
 
+        const suitEvaluated = {
+            [Suit.Spades]: SuitEvaluator.Spades,
+            [Suit.Hearts]: SuitEvaluator.Hearts,
+            [Suit.Diamonds]: SuitEvaluator.Diamonds,
+            [Suit.Clubs]: SuitEvaluator.Clubs
+        }[suit]
+
         this.rank = rank;
         this.suit = suit;
+        this.evaluatorSuit = suitEvaluated;
+    }
+
+    toEvaluatorString() {
+        return `${this.rank}${this.evaluatorSuit}`
     }
 
     toString(): string {

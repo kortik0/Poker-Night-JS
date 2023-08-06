@@ -5,6 +5,7 @@ import {GameStage, Table} from "../components/table";
 import {Button, TextInput} from "@mantine/core";
 import {useEffect, useState} from "react";
 
+var Hand = require('pokersolver').Hand;
 //This is just a scrap of ideas which would be decomposed. But for now it is what it is.
 export const metadata = {
     title: "Poker Night",
@@ -82,8 +83,21 @@ export default function Main() {
         setNewTable(newTable)
     }
 
+    let evaluatedHand = table.currentPlayerPosition.getEvaluatedHand();
+    let evaluatedTable = table.getEvaluatedCards()
+
+    let evaluateAll = [...evaluatedHand, ...evaluatedTable];
+
     return (<>
         <div>
+            {(evaluatedHand.length && !evaluatedTable.length) &&
+                <h1>Evaluated hand: {Hand.solve(evaluatedHand).name}</h1>
+            }
+
+            {(evaluatedHand.length && evaluatedTable.length) &&
+                <h1>Evaluated hand: {Hand.solve(evaluateAll).name}</h1>
+            }
+
             <p>Current pot is: {table.pot}</p>
             <p>DEBUG playerBet: {table.currentPlayerPosition.currentBet}</p>
 
@@ -105,5 +119,5 @@ export default function Main() {
                 }}/>
             </>}
         </div>
-    </>)
+    </>);
 };

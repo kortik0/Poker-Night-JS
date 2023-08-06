@@ -4,3 +4,10 @@ export enum Suit {
     Clubs = '♣',
     Spades = '♠',
 }
+
+export enum SuitEvaluator {
+    Hearts = "h",
+    Diamonds = "d",
+    Clubs = "c",
+    Spades = "s"
+}

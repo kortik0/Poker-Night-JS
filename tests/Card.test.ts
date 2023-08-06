@@ -16,6 +16,11 @@ describe('Card class', () => {
         expect(card.toString()).toBe('K♣');
     });
 
+    it("should return the correct string representation of evaluator card", () => {
+        const card = new Card(Rank.King, Suit.Clubs);
+        expect(card.toEvaluatorString()).toBe("Kc")
+    })
+
     // Tests that an error is thrown when creating a card with an invalid rank
     it('should throw an error when creating a card with an invalid rank', () => {
         expect(() => new Card('invalidRank' as Rank, Suit.Diamonds)).toThrow();
