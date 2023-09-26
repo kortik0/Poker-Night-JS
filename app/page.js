@@ -83,20 +83,15 @@ export default function Main() {
         setNewTable(newTable)
     }
 
-    let evaluatedHand = table.currentPlayerPosition.getEvaluatedHand();
-    let evaluatedTable = table.getEvaluatedCards()
+    let evaluatedHand = table.currentPlayerPosition?.getEvaluatedHand() ?? [];
+    let evaluatedTable = table.getEvaluatedCommunityCards() ?? [];
 
-    let evaluateAll = [...evaluatedHand, ...evaluatedTable];
+    let evaluatedAll = [...evaluatedHand, ...evaluatedTable];
 
     return (<>
         <div>
-            {(evaluatedHand.length && !evaluatedTable.length) &&
-                <h1>Evaluated hand: {Hand.solve(evaluatedHand).name}</h1>
-            }
-
-            {(evaluatedHand.length && evaluatedTable.length) &&
-                <h1>Evaluated hand: {Hand.solve(evaluateAll).name}</h1>
-            }
+            {evaluatedAll.length && <h1>Evaluated hand: {Hand.solve(evaluatedAll).name}</h1>}
+            {table.currentGameStage === GameStage.Showdown && <h1>Winner is: {table.winner.name}! Hand: {table.winner.hand.toString()}</h1>}
 
             <p>Current pot is: {table.pot}</p>
             <p>DEBUG playerBet: {table.currentPlayerPosition.currentBet}</p>

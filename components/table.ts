@@ -3,6 +3,8 @@ import {Card} from "./card";
 import {Player} from "./player";
 import {Deck} from "./deck";
 
+const Hand = require('pokersolver').Hand;
+
 export enum GameStage {
     Preparing,
     Preflop,
@@ -25,6 +27,7 @@ export class Table {
 
     private nonTablePlayers: LinkedList = new LinkedList();
     private playersAtTheTable: LinkedList = new LinkedList();
+    private _winner: Player = null;
 
     private cardsOnTable: Card[] = []
 
@@ -78,7 +81,7 @@ export class Table {
         if (this.currentPlayerPosition && this.currentPlayerPosition.next !== null) {
             this.currentPlayerPosition = this.currentPlayerPosition.next;
         } else {
-            if (this.isMovedRound() && this.isStakesEqual()) {
+            if (this.isMovedRound() && this.isStakesEqual() && this.currentGameStage !== GameStage.Showdown) {
                 this.gameStageSwitch(this.nextGameStage());
             }
 
@@ -88,8 +91,6 @@ export class Table {
 
     isStakesEqual() {
         return this.currentHighestStake && this.playersAtTheTable.toArray().every((player: Player) => {
-            console.log(`${player.name} - ${player.currentBet}`)
-            console.log(`Highest stake - ${this.currentHighestStake}`)
             return player.currentBet === this.currentHighestStake || player.isFolded === true;
         })
     }
@@ -104,27 +105,17 @@ export class Table {
     }
 
     getCopyTable() {
-        // TODO: IT is what it is
-        // This is already too much
-        // I should find another way to copy it
-        const newTable = new Table()
+        const copy = new Table();
 
-        newTable.minimumPlayer = this.minimumPlayer;
-        newTable.deck = this.deck;
-        newTable.sitsCount = this.sitsCount;
-        newTable.currentGameStage = this.currentGameStage;
-        newTable.isInGame = this.isInGame;
-        newTable.nonTablePlayers = this.nonTablePlayers;
-        newTable.playersAtTheTable = this.playersAtTheTable;
-        newTable.cardsOnTable = this.cardsOnTable;
-        newTable.currentPlayerPosition = this.currentPlayerPosition;
-        newTable.bigBlind = this.bigBlind;
-        newTable.smallBlind = this.smallBlind;
-        newTable.dealerPosition = this.dealerPosition;
-        newTable._pot = this._pot;
-        newTable.currentHighestStake = this.currentHighestStake;
+        const original = this;
+        for (const key in original) {
+            if (original.hasOwnProperty(key)) {
+                // @ts-ignore
+                copy[key] = original[key];
+            }
+        }
 
-        return newTable;
+        return copy;
     }
 
     startGame() {
@@ -144,7 +135,6 @@ export class Table {
     }
 
     nextGameStage(): GameStage {
-        //Stackoverflow??
         const stageValues: GameStage[] = Object.values(GameStage).filter(
             (value) => typeof value === 'number'
         ) as GameStage[]
@@ -185,6 +175,7 @@ export class Table {
         }
     }
 
+    // Methods to handle game actions in each stage
     dealPreflop() {
         this.dealCards();
     }
@@ -204,8 +195,13 @@ export class Table {
         this.cardsOnTable.push(this.deck.draw())
     }
 
-    // Methods to handle game actions in each stage
     dealShowdown() {
+        const winner = this.getWinner();
+        this._winner = winner;
+        const combinationName = Hand.solve([...this.getEvaluatedCommunityCards(), ...winner.getEvaluatedHand()]).name;
+        console.log(`Winner is: ${winner.name}: ${combinationName}/${winner.hand} `);
+        console.log(this._winner)
+
         // Perform the showdown logic to determine the winner(s) and distribute the pot
         // TODO: Above
     }
@@ -221,6 +217,21 @@ export class Table {
         this.playersAtTheTable.toArray().forEach((player: Player) => {
             player.hand = this.deck.getHand()
         })
+    }
+
+    // For now, it works only for one winner.
+    // Take it and don't bother me.
+    private getWinner(): Player {
+        const allPlayersCombination = this.playersAtTheTable.toArray().reduce((acc, player: Player) => {
+            acc.push(Hand.solve([...player.getEvaluatedHand(), ...this.getEvaluatedCommunityCards()]));
+            return acc;
+        }, []);
+
+        const winnerHand = Hand.winners(allPlayersCombination);
+        return this.playersAtTheTable.toArray().find((player: Player) => {
+            const cards = Hand.solve([...player.getEvaluatedHand(), ...this.getEvaluatedCommunityCards()]);
+            return cards.toString() === winnerHand[0].toString();
+        });
     }
 
     private setDealerPosition() {
@@ -285,21 +296,12 @@ export class Table {
                 console.log("Invalid action");
                 break;
         }
-
-        console.log(`IS MOVED: ${this.isMovedRound()}`)
-        console.log(`IS ISSTAKESEQUAL: ${this.isStakesEqual()}`)
-        if (this.isMovedRound() && this.isStakesEqual() && this.currentGameStage !== GameStage.Showdown) {
-            this.gameStageSwitch(this.nextGameStage());
-            return;
-        }
-
         this.nextPlayer();
     }
 
-    getEvaluatedCards() {
+    getEvaluatedCommunityCards() {
         return this.cardsOnTable.map(card => card.toEvaluatorString());
     }
-
 
     get pot(): number {
         return this._pot;
@@ -307,5 +309,9 @@ export class Table {
 
     set pot(value: number) {
         this._pot = value;
+    }
+
+    get winner() {
+        return this._winner;
     }
 }
